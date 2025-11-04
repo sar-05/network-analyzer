@@ -32,6 +32,23 @@ cooperativos:
 - Un **archivo estructurado (JSON)** con campos estructurados.
 - Un archivo markdown con un resumen **orientado al usuario**.
 
+- Rol en ciberseguridad
+  - Este módulo se asocia principalmente con las funciones de Threat Hunting y SOC
+    (Security Operations Center), al proporcionar visibilidad del entorno de
+    red y apoyar la identificación temprana de posibles activos no autorizados.
+
+- Complejidad técnica
+  - Cubre las dimensiones de red y descubrimiento de servicios, involucrando
+    análisis de protocolos, reconocimiento pasivo/activo y procesamiento de datos
+    estructurados. Nivel de complejidad medio, al requerir conocimiento de
+    herramientas de escaneo y formatos de datos (JSON, YAML).
+
+- Controles éticos
+  - El escaneo de red debe realizarse únicamente sobre entornos autorizados. No
+    se ejecutará el módulo en redes externas o sin consentimiento
+    explícito. Toda recolección de datos debe limitarse a información técnica,
+    sin incluir contenido personal o sensible.
+
 ## Módulo B: Análisis y Detección de Actividad Sospechosa
 
 - Objetivo:
@@ -60,6 +77,22 @@ cooperativos:
 - Salida
   - Archivo JSON acciones a implementar por la Módulo C.
 
+- Rol en ciberseguridad
+  - Relaciona con SOC y Blue Team, enfocado en la detección de amenazas y
+    correlación de eventos. Sirve como capa analítica que transforma datos de red
+    en indicadores de compromiso accionables.
+
+- Complejidad técnica:
+  - Integra las dimensiones de análisis de comportamiento, correlación temporal y
+    detección basada en reglas. Su complejidad es media–alta, debido al tratamiento
+    de datos históricos, la comparación automatizada y la clasificación de riesgos.
+
+- Controles éticos:
+  - El análisis debe centrarse exclusivamente en los datos recolectados por el
+    propio sistema, evitando correlaciones que involucren información de
+    usuarios o tráfico cifrado. Los resultados deben tratarse como información
+    confidencial, usándose solo para propósitos de defensa y mejora del entorno monitoreado.
+
 ## Módulo C: Respuesta y Contención
 
 - Objetivo
@@ -83,6 +116,22 @@ cooperativos:
 - Salida
   - Registro de acciones ejecutadas.
   - Resumen final con estado de la red post-contención.
+
+- Rol en ciberseguridad:
+  - Asociado con los ámbitos de DFIR (Digital Forensics and Incident Response) y
+    Blue Team, este módulo ejecuta o recomienda medidas de contención, priorizando
+    la respuesta controlada ante incidentes.
+
+- Complejidad técnica:
+  - Abarca las dimensiones de automatización de respuesta, interacción con
+    sistemas operativos y seguridad operacional. Presenta una complejidad alta,
+    por su dependencia de permisos administrativos, control de scripts en
+    distintos entornos (Linux/Windows) y necesidad de auditoría segura.
+
+- Controles éticos
+  - Las acciones de contención deben ejecutarse únicamente con autorización previa
+    y en entornos controlados. Toda intervención automática debe registrarse y
+    ser revisable, garantizando trazabilidad y responsabilidad operativa.
 
 ## Estructura del repositorio
 
