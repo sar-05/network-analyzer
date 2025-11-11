@@ -1,0 +1,4 @@
+paths:
+  data: "data/"
+  outputs: "outputs/"
+  log_path: "outputs/logs"
