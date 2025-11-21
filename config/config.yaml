@@ -1,4 +1,6 @@
 paths:
   data: "data/"
+  states: "data/states"
   outputs: "outputs/"
-  log_path: "outputs/logs"
+  logs: "outputs/logs"
+  messages: "config/messages/"

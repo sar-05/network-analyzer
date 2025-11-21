@@ -1,8 +1,10 @@
+"""Fucntions to acquire information of targets."""
+
 import logging
 
 from nmapthon2 import NmapScanner
 
-from network_analyzer.utils.models import (
+from network_analyzer.utils.scan_models import (
     HostInfo,
     JsonHost,
     OSMatch,
@@ -10,16 +12,17 @@ from network_analyzer.utils.models import (
     PortInfo,
     ScanResults,
     ServiceInfo,
+    Targets,
 )
 
 logger = logging.getLogger(__name__)
 
 
-def acquire(targets) -> ScanResults | None:
+def acquire(targets: Targets) -> ScanResults | None:
     """Parse nmap scan results of a network into a JSON serializable object."""
     scanner = NmapScanner()
-    r = scanner.scan(targets=targets, arguments="--privileged -A --osscan-guess")
-    hosts = ScanResults()
+    r = scanner.scan(targets=str(targets), arguments="--privileged -A --osscan-guess")
+    hosts = ScanResults(targets=targets)
     for host in r:
         # Parse host_info
         host_info = HostInfo(
