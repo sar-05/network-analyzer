@@ -9,7 +9,7 @@ from network_analyzer.utils.config import load_config
 from network_analyzer.utils.menu import get_state
 from network_analyzer.utils.messages import MessagesConfig
 from network_analyzer.utils.setup_logging import setup_logging
-from network_analyzer.utils.validate import validate_state_name
+from network_analyzer.utils.max_attempts import validate_state_name, MaxAttemptError
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -23,17 +23,20 @@ def main():
     logger = logging.getLogger(__name__)
     logger.info("Started network-analyzer.")
 
-    messages = config.paths.messages
+    messages_path = config.paths.messages
 
     print(figlet_format("network-analyzer"))
 
     # Initialize menu messages
-    MessagesConfig.initialize(messages, "es")
-
-    state_name = validate_state_name("Ingrese el estado a crear o cargar: ")
-    states_dir = config.paths.states
-    state = get_state(states_dir, state_name)
-    print(state.model_dump_json(indent=2))
+    MessagesConfig.initialize(messages_path, "es")
+    messages = MessagesConfig.get()
+    try:
+        state_name = validate_state_name("Ingrese el estado a crear o cargar: ")
+        states_dir = config.paths.states
+        state = get_state(states_dir, state_name)
+        print(state.model_dump_json(indent=2))
+    except MaxAttemptError:
+        print(messages.max_attempts_exit)
 
     # Add environment checks
 

@@ -23,6 +23,7 @@ class Messages(BaseModel):
     scan: str
     selection_prompt: str
     max_attempts: str
+    max_attempts_exit: str
     network_ip_required: str
     network_ip_configured: str
     os_families: str
@@ -31,6 +32,7 @@ class Messages(BaseModel):
     devices_num: str
     break_option_cancel: str
     break_option_scan: str
+    cancel_operation: str
 
 
 class MessagesConfig:

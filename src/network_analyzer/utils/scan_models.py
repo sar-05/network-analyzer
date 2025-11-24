@@ -89,7 +89,7 @@ class ScanResults(BaseModel):
 class NetworkState(BaseModel):
     """Model for the network state, a scan summary.
 
-    It's meant to compare expected results against actual results.
+    It's meant to be use for comparing expected results against actual results.
     """
 
     targets: Targets | None = None

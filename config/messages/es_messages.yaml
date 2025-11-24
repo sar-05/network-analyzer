@@ -10,6 +10,7 @@ messages:
   scan: "Escanear {targets}"
   selection_prompt: "Su selección: "
   max_attempts: "Máximo número de intentos excedidos."
+  max_attempts_exit: "Saliendo debido a número de intentos excedido."
   network_ip_required: "1) Ip de Red (Necesario)"
   network_ip_configured: "1) Ip de Red (Configurado)"
   os_families: "2) Familias de OS"
@@ -18,3 +19,4 @@ messages:
   devices_num: "5) Número de Dispositivos"
   break_option_cancel: "6) Cancelar"
   break_option_scan: "6) Escanear {targets}"
+  cancel_operation: "Cancelando operación."
