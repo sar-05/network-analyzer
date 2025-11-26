@@ -3,76 +3,58 @@
 ## Herramienta de análisis de red para detección de anomalías y ejecución de acciones de contención automatizada.
 
 
-Este repositorio contiene el desarrollo de un sistema modular de ciberseguridad dividido en **tres herramientas cooperativas**, cuyo objetivo es **mapear una red**, **detectar actividad sospechosa** y **ejecutar acciones de contención de forma controlada y auditable**.  
-Actualmente el proyecto se encuentra **a la mitad de su implementación**, con integración parcial de los módulos A y B.
-
+Este repositorio contiene el desarrollo de un sistema modular de ciberseguridad dividido en **tres herramientas cooperativas**, cuyo objetivo es **mapear una red**, **detectar actividad sospechosa en los puertos** y **ejecutar acciones de contención de forma controlada** dentro de un sistema operativo Linux.  
+El proyecto incluye un **menú interactivo**, un **flujo técnico documentado** y una **integración de IA** para generar reportes explicativos, resúmenes inteligentes y sugerencias de contención.
 ---
 
 ## 📌 Objetivo General  
-Diseñar e implementar un analizador de red que permita:  
-1. Realizar inventarios y escaneos estructurados del entorno.  
-2. Detectar anomalías, cambios inesperados o comportamientos no autorizados.  
-3. Ejecutar acciones de contención sobre dispositivos o servicios comprometidos.
+El propósito principal del proyecto es analizar el entorno de red, generar una radiografía completa del estado actual, detectar comportamientos fuera de lo esperado y permitir acciones automatizadas de seguridad.
 
-La arquitectura del proyecto se basa en **módulos independientes pero interoperables**, estructurados para operar como una cadena de seguridad preventiva y reactiva.
+El sistema está compuesto por tres módulos interoperables:
+Módulo A — Acquisition: inventario y recolección de actividad.
+Módulo B — Analysis: análisis de anomalías usando comparación histórica.
+Módulo C — Response: ejecución de contención en puertos o servicios sospechosos.
 
----
-
-## 🧩 Módulos del Proyecto
-
-### 🔍 Módulo A — Inventario y Recolección de Actividad (Acquisition)
-
-Responsable de obtener un **mapeo completo del entorno de red**, incluyendo:
-
-- Descubrimiento de hosts activos (ping/ARP).  
-- Escaneo de puertos.  
-- Identificación de servicios y versiones.  
-- Detección opcional del sistema operativo.  
-- Registro temporal para comparación histórica.
-
-#### **Estado actual**
-- ✔ Menú interactivo implementado  
-- ✔ Configuración personalizable (rango, puertos, SO, servicios, número de dispositivos)  
-- ✔ Generación de archivo JSON estructurado  
-- ✔ Preparado para integrarse al módulo B
+El diseño final ofrece:
+Un flujo técnico completo de detección → análisis → respuesta.
+Integración con IA para análisis contextual y decisiones asistidas.
+Ejecución segura y controlada de acciones en el firewall del sistema.
 
 ---
 
-### 🧠 Módulo B — Análisis y Detección de Actividad Sospechosa (Analysis)
+# 👥 Integrantes y Roles
 
-Identifica **diferencias significativas** entre el escaneo actual y la línea base esperada:
-
-- Comparación con escaneos previos.  
-- Identificación de nuevos hosts, puertos inusuales o servicios modificados.  
-- Clasificación de riesgo (bajo/medio/alto).  
-- Generación de acciones recomendadas para el módulo C.
-
-#### **Estado actual**
-- ✔ Integración parcial con datos del módulo A  
-- ✔ Procesamiento de puertos, SO y servicios según filtros del usuario  
-- ✔ Generación del JSON base para el módulo C  
-- ✔ Primera versión del prompt de IA completada
+| Integrante                        | Rol y Contribuciones                                                                                                                                                                   |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Sebastián Alighieri Ramírez**   | Creación del menú dinámico, configuración de parámetros (IP, SO, servicios, límites). Implementación del módulo A (Acquisition). Ajuste del flujo técnico.                           |
+| **Julio Abraham Puente Guerrero** | Diseño del prompt y script para la IA. Extracción de puertos, sistemas operativos y servicios según filtros. Documentación del plan de IA.                                             |
+| **Alberto Jessier Lucio Sital**   | Documentación global del proyecto y redacción técnica. Integración completa del flujo entre módulos. Implementación del módulo C (Response) con acciones reales en puertos y firewall. |
 
 ---
 
-### 🛡️ Módulo C — Respuesta y Contención (Response)
+# 🧩 Estado Final del Proyecto
 
-> *En planeación — por implementarse en la segunda mitad del proyecto.*
+### ✔ Módulo A — Acquisition
 
-Su función será:
+* Menú interactivo funcional.
+* Escaneo según parámetros definidos por el usuario.
+* Identificación de puertos, servicios y sistema operativo.
+* Exportación a JSON estructurado.
 
-- Interpretar acciones del módulo B.  
-- Ejecutar o recomendar contención automática.  
-- Modificar reglas de firewall (`iptables`, `ufw`, `netsh`).  
-- Deshabilitar interfaces o generar registros.  
+### ✔ Módulo B — Analysis
 
-#### **Estado actual**
-- ⏳ Aún no implementado  
-- 🔧 Scripts base en `/scripts/` para Linux y Windows
+* Comparación entre escaneos actuales y anteriores.
+* Identificación de anomalías: nuevos hosts, puertos inesperados, cambios en servicios.
+* Generación de recomendaciones y análisis contextual mediante IA.
 
----
+### ✔ Módulo C — Response
 
-## 🤖 Integración de Inteligencia Artificial
+* Interpretación de acciones recomendadas.
+* Aplicación real del firewall (creación y modificación de cadenas).
+* Ejecución de bloqueos, aperturas o modificaciones en puertos.
+* Registro final de acciones ejecutadas.
+
+### ## 🤖 Integración de Inteligencia Artificial
 
 ### Propósito del uso de IA
 La IA se utiliza para:
@@ -91,19 +73,57 @@ La IA se utiliza para:
 ### Archivos relacionados
 - `/docs/ai_plan.md`
 - `/prompts/prompt_v1.json`
-- `/prompts/summary_prompt.txt`
-- `/prompts/context_template.md`
+
+### Estado general
+
+* **Proyecto completado (100%)**
 
 ---
 
-## 🛠️ Instalación y Uso
+# 🛡️ Declaración Ética y Consideraciones de Seguridad
 
-### Requisitos del Sistema
-- Python 3.8+
-- Permisos de administrador para escaneo de red
-- Acceso a entorno de red autorizado
+### Controles implementados
 
-### Instalación Rápida
+* Uso exclusivo en **redes autorizadas**.
+* Recolección de información **solo técnica** (no personal).
+* Auditoría completa de todas las acciones ejecutadas.
+* Ejecución controlada de modificaciones al firewall.
+
+### Advertencias de uso
+
+Este software **solo debe utilizarse en**:
+
+* Sistemas propios o con autorización explícita.
+* Ambientes de prueba, auditoría y prácticas de ciberseguridad.
+* Escenarios educativos o profesionales con fines legítimos.
+
+El uso indebido del software **es responsabilidad de quien lo ejecuta**.
+
+---
+
+# 🔗 Enlaces Internos a Entregables
+
+* 📄 **Entregable 3 — Implementación de análisis y base para IA**
+  → `/docs/entregable_3.md`
+
+* 📄 **Entregable 4 — Proyecto casi completo (90%)**
+  → `/docs/entregable_4.md`
+
+* 🤖 **Plan de IA**
+  → `/docs/ai_plan.md`
+
+---
+
+# 🛠️ Instalación y Ejecución
+
+### Requisitos
+
+* Python **3.13+**
+* Permisos de administrador (para escaneo y firewall)
+* Acceso a red autorizado
+
+### Instalación rápida
+
 ```bash
 git clone https://github.com/sar-05/network-analyzer
 cd network-analyzer
@@ -112,31 +132,7 @@ pip install -e .
 
 ---
 
-## ⚠️ Consideraciones Éticas y de Seguridad
+# 📅 Información Final
 
-### Controles Implementados
-- ✅ Escaneo exclusivo en redes autorizadas
-- ✅ Recolección limitada a información técnica
-- ✅ Exclusión de contenido personal o sensible
-- ✅ Auditoría completa de acciones ejecutadas
-
-### Advertencias de Uso
-Este software debe utilizarse únicamente en:
-- Entornos de red propios o con autorización explícita
-- Propósitos legítimos de seguridad y administración
-- Ambientes controlados y de prueba
-
----
-
-## 🔄 Próximos Pasos
-
-1. **Integración completa del Módulo B** - Análisis de anomalías
-2. **Desarrollo del Módulo C** - Sistema de respuesta automatizada  
-3. **Implementación de IA** para generación de reportes
-4. **Pruebas de integración** en entornos controlados
-5. **Documentación avanzada** y casos de uso
-
----
-
-*Última actualización: 20 Noviembre 2025*  
-*Estado del proyecto: Desarrollo activo - Fase de integración*
+**Última actualización:** 26 Noviembre 2025
+**Estado del proyecto:** ✔ Proyecto Completado
