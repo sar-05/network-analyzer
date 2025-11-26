@@ -16,6 +16,7 @@ def execute_reply_actions(data: dict):
     print(f"Se han procesado las acciones para {len(data)} puertos.")
     return results
 
+## TESTING PURPOSES
 def main():
     sample_data = {
         "8080": "cerrar",
