@@ -6,9 +6,9 @@ import openai
 
 
 def reporte_analisis_ia(nombre_archivo):
-    archivo_prompt = r"RUTA ABSOLUTA DEL PROMPT PARA LA IA (network-analyzer/prompts)"
-    archivo_api_key = r"RUTA ABSOLUTA DE LA API KEY"
-    archivo_analisis = buscar_archivo(nombre_archivo, r"RUTA ABSOLUTA DE LA CARPETA BASE DEL PROYECTO")
+    archivo_prompt = r"C:\Users\TTOCI\OneDrive\Documentos\GitHub\network-analyzer\prompts\prompt_v1.txt"
+    archivo_api_key = r"C:\Users\TTOCI\OneDrive\Documentos\GitHub\network-analyzer\src\network_analyzer\utils\api_key_openai.txt"
+    archivo_analisis = buscar_archivo(nombre_archivo, r"C:\Users\TTOCI\OneDrive\Documentos\GitHub\network-analyzer")
 
     try:
         validar_rutas(archivo_prompt, archivo_api_key)
