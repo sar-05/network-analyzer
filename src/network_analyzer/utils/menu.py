@@ -1,38 +1,90 @@
 """Functions to display menu to create expected Scan Results."""
 
+from enum import Enum
 import logging
+from pathlib import Path
 from re import compile as comp
+from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 from network_analyzer.utils.max_attempts import (
     AttemptError,
     max_attempts,
 )
+from network_analyzer.utils.messages import MessagesConfig
+from network_analyzer.utils.scan_models import NetworkState, Targets
 
 logger = logging.getLogger(__name__)
+
+
+class FieldType(Enum):
+    """Enum to track what NetworkState field a menu represents."""
+
+    TARGETS = "targets"
+    HOSTS_NUM = "hosts_num"
+    HOST_FAMILIES = "host_families"
+    PORTS = "ports"
+    SERVICES = "services"
 
 
 class MenuOption(BaseModel):
     """Model for option in a menu."""
 
-    value: str | int
+    value: str | int | Targets
+    field_type: FieldType | None = None
+    required: bool = False
     status: bool = False
+    custom: bool = False
+
+    def set_status(self):
+        value = self.value
+        if self.status:
+            value = f"{value}, (Configurado)"
+
+    def set_required(self):
+        value = self.value
+        if self.required:
+            value = f"{value}, (Necesario)"
+
+    # @max_attempts()
+    def resolve_custom(self):
+        if self.status and self.custom:
+            user_input = input("Ingrese user input: ")
+            try:
+                match self.field_type:
+                    case (
+                        FieldType.HOST_FAMILIES | FieldType.SERVICES | FieldType.TARGETS
+                    ):
+                        logger.debug("Match con str")
+                        self.value = user_input
+                    case FieldType.HOSTS_NUM | FieldType.PORTS:
+                        logger.debug("Match con int")
+                        self.value = int(user_input)
+            except (ValidationError, ValueError) as e:
+                msg = f"Error while resolving custom value {user_input}"
+                raise AttemptError(msg) from e
+            else:
+                print(self.value)
+        else:
+            return
 
 
 class MenuSelection(BaseModel):
     """Model for a valid selection of options."""
 
     selection_idxs: list[int] = Field(default_factory=list)
+    field_type: FieldType | None = None
     selection_options: list[MenuOption] = Field(default_factory=list)
 
     @max_attempts(input_param="selection_str")
     def get_indices(self, selection_str: str) -> list[int]:
         """Set selection_idxs or raises AttemptError."""
-        pattern = comp(r"^\d+(?:\s+\d+)*$")
+        # pattern = comp(r"^\d+(?:\s+\d+)*$")
+        pattern = comp(r"^(?:\d+(?:\s+\d+)*|(?:\d{1,3}\.){3}\d{1,3}(?:/\d{1,2})?)$")
         s = selection_str.strip()
         if not pattern.match(s):
-            print(f"Unable to parse {s} as indexes.")
+            logger.warning(f"Unable to parse {s} as indexes.")
             raise AttemptError
         idxs = [int(i) - 1 for i in s.split()]
         self.selection_idxs = idxs
@@ -46,6 +98,7 @@ class MenuSelection(BaseModel):
             if i in valid_range:
                 option = options[i]
                 option.status = True
+                option.resolve_custom()
                 selection_options.append(option)
             else:
                 logger.warning(
@@ -60,13 +113,19 @@ class MenuClass(BaseModel):
     """Model for a menu to define selections."""
 
     options: list[MenuOption] = Field(default_factory=list)
+    field_type: FieldType | None = None
     selection: list[MenuOption] | None = None
     custom: MenuOption | list[MenuOption] | None = None
 
-    def from_list(self, opts: list):
+    def from_list(self, opts: list[Any], field_type: FieldType | None = None):
         """Create a list of MenuOption items given a list."""
+        self.field_type = field_type
+        custom = False
         for opt in opts:
-            opt_obj = MenuOption(value=opt)
+            if opt == "CUSTOM" or opt == 1000:
+                custom = True
+            logger.debug("opt es %s y custom es %s", opt, custom)
+            opt_obj = MenuOption(value=opt, custom=custom, field_type=field_type)
             self.options.append(opt_obj)
 
     def print_options(self):
@@ -75,9 +134,9 @@ class MenuClass(BaseModel):
         for i, opt in enumerate(options):
             print(f"{i + 1}) {opt.value}")
 
-    def get_selection(self):
+    def get_selection(self) -> list[MenuOption]:
         """Populate menu selection."""
-        selection = MenuSelection()
+        selection = MenuSelection(field_type=self.field_type)
         selection.get_indices()
         options = self.options
         if not options:
@@ -86,133 +145,131 @@ class MenuClass(BaseModel):
             raise ValueError(msg)
         selection.indices_to_options(self.options)
         self.selection = selection.selection_options
+        return self.selection
 
 
-if __name__ == "__main__":
-    menu = MenuClass()
-    menu.from_list(["Test 1", "Test 2", "Test 3"])
-    menu.print_options()
-    menu.get_selection()
-    print(menu.selection)
+def parse_menu_selection(
+    field_type: FieldType,
+    selection: list[MenuOption] | None = None,
+) -> Targets | int | set[str] | set[int]:
+    """Parse menu selection to appropriate NetworkState type."""
+
+    if not selection:
+        raise ValueError("Empty selection")
+
+    match field_type:
+        case FieldType.TARGETS:
+            # Assuming only one target is selected
+
+            if len(selection) != 1:
+                raise ValueError("Expected single target selection")
+
+            value = selection[0].value
+
+            if isinstance(value, Targets):
+                return value
+
+            try:
+                target = Targets()
+                target.from_string(value=value)
+            except (ValidationError, ValueError):
+                msg = f"Unable to parse {selection[0]} as Targets object"
+                raise TypeError(msg)
+            else:
+                return target
+
+        case FieldType.HOSTS_NUM:
+            # Assuming only one number is selected
+            if len(selection) != 1:
+                raise ValueError("Expected single number selection")
+            value = selection[0].value
+            if not isinstance(value, int):
+                raise TypeError(f"Expected int, got {type(value)}")
+            return value
+
+        case FieldType.HOST_FAMILIES | FieldType.SERVICES:
+            # Return set of strings
+            result = set()
+            for opt in selection:
+                if not isinstance(opt.value, str):
+                    raise TypeError(f"Expected str, got {type(opt.value)}")
+                result.add(opt.value)
+            return result
+
+        case FieldType.PORTS:
+            # Return set of ints
+            result = set()
+            for opt in selection:
+                if not isinstance(opt.value, int):
+                    raise TypeError(f"Expected int, got {type(opt.value)}")
+                result.add(opt.value)
+            return result
+
+        case _:
+            raise ValueError(f"Unknown field type: {field_type}")
 
 
-# def _print_status(msg: str, p: int | set[str] | set[int] | None) -> None:
-#     messages = MessagesConfig.get()
-#     if p:
-#         print(f"{msg} {messages.configured}")
-#     else:
-#         print(f"{msg}")
-#
-#
-# def _print_options(msg: str, options: list):
-#     for i, opt in enumerate(options):
-#         print(f"{i + 1}) {opt}")
-#     selections = validate_selections(msg=msg)
-#     if selections:
-#         result = []
-#         for token in selections.split():
-#             if token.isdigit():
-#                 i = int(token) - 1  # convert to 0-based index
-#                 if 0 <= i < len(options):
-#                     result.append(options[i])
-#         return result
-#     return None
-#
-#
-# def _print_submenu(
-#     selection,
-#     os_list,
-#     services_list,
-#     ports_list,
-#     status: NetworkState,
-# ):
-#     messages = MessagesConfig.get()
-#     match selection:
-#         case "1":
-#             try:
-#                 status.targets = validate_targets(messages.network_ip)
-#             except ValueError:
-#                 print(messages.max_attempts)
-#                 raise
-#         case "2":
-#             choice = _print_options(messages.select_os, os_list)
-#             if choice:
-#                 status.host_families = set(choice)
-#         case "3":
-#             choice = _print_options(messages.select_services, services_list)
-#             if choice:
-#                 status.services = set(choice)
-#         case "4":
-#             choice = _print_options(messages.select_ports, ports_list)
-#             if choice:
-#                 status.ports = set(choice)
-#         case "5":
-#             choice = validate_hosts_num(messages.expected_devices)
-#             if choice:
-#                 status.hosts_num = choice
-#         case _:
-#             choice = None
-#
-#
-# def _state_by_menu() -> NetworkState:
-#     """Display cli menu to create a NetworkState."""
-#     messages = MessagesConfig.get()
-#     state = NetworkState()
+def sub_menu(
+    sub_options: list[Any] | None, field_type: FieldType
+) -> Targets | int | set[str] | set[int]:
+    sub_menu = MenuClass(field_type=field_type)
+    if not sub_options:
+        return parse_menu_selection(field_type=field_type)
+    sub_menu.from_list(sub_options, field_type)
+    sub_menu.print_options()
+    selection = sub_menu.get_selection()
+    return parse_menu_selection(selection=selection, field_type=field_type)
 
-#     # TODO: Move opotions lists to messages
 
-#     os_list = ["Linux", "Windows", "MacOS", "Android", "IOS", "Todos"]
-#     services_list = ["SSH", "Apache HTTP server", "FTP", "SMTP", "HTTPS"]
-#     ports_list = [20, 21, 22, 80, 443, 0]
-#     print(messages.menu_title)
-#     while True:
-#         if not state.targets:
-#             msg_targets = messages.network_ip_required
-#             break_msg = messages.break_option_cancel
-#         else:
-#             msg_targets = messages.network_ip_configured
-#             break_msg = messages.break_option_scan.format(targets=state.targets)
-#
-#         print(msg_targets)
-#         _print_status(messages.os_families, state.host_families)
-#         _print_status(messages.services, state.services)
-#         _print_status(messages.ports, state.ports)
-#         _print_status(messages.devices_num, state.hosts_num)
-#         print(break_msg)
-#
-#         selection = input(messages.selection_prompt)
-#         if selection == "6":
-#             print(messages.cancel_operation)
-#             break
-#         _print_submenu(
-#             selection=selection,
-#             os_list=os_list,
-#             services_list=services_list,
-#             ports_list=ports_list,
-#             status=state,
-#         )
-#     return state
-#
-#
-# def _create_state(state_path: Path) -> NetworkState:
-#     """Triggers creation of network state and saves it as JSON."""
-#     state = _state_by_menu()
-#     if state.targets:
-#         with state_path.open("w") as f:
-#             f.write(state.model_dump_json())
-#         return state
-#     msg = "Empty target in template not allowed."
-#     raise ValueError(msg)
-#
-#
-# def get_state(states_dir: Path, state_name: str = "default"):
-#     """Return NetworkState file by name."""
-#     if not states_dir.exists():
-#         states_dir.mkdir()
-#     template_path = states_dir / state_name / ".json"
-#     try:
-#         state_str = template_path.read_text(encoding="utf-8")
-#     except FileNotFoundError:
-#         return _create_state(template_path)
-#     else:
-#         return ScanResults.model_validate_json(state_str)
+def main_menu() -> NetworkState:
+    messages = MessagesConfig.get()
+    state = NetworkState(
+        host_families=set(messages.os_opts),
+        hosts_num=5,
+        ports=set(messages.ports_opts),
+        services=set(messages.services_opts),
+    )
+
+    main_menu = MenuClass()
+    main_menu.from_list(messages.main_menu_opts)
+
+    while True:
+        main_menu.print_options()
+        selection = main_menu.get_selection()[0].value
+
+        match selection:
+            case "Ip de Red":
+                result = sub_menu(messages.ip_opts, FieldType.TARGETS)
+                state.targets = result
+            case "Familia de OS":
+                result = sub_menu(messages.os_opts, FieldType.HOST_FAMILIES)
+                state.host_families = result
+            case "Servicios":
+                result = sub_menu(messages.services_opts, FieldType.SERVICES)
+                state.services = result
+            case "Puertos":
+                result = sub_menu(messages.ports_opts, FieldType.PORTS)
+                state.ports = result
+            case "Número de Dispositivos":
+                result = sub_menu(messages.num_dev_opts, FieldType.HOSTS_NUM)
+                state.hosts_num = result
+            case "Escanear":
+                break
+            case _:
+                logger.error("%s", messages.unknown_menu_opt)
+                print(messages.unknown_menu_opt)
+
+    return state
+
+
+def get_state(states_dir: Path, state_name: str = "default"):
+    """Return NetworkState file by name."""
+    if not states_dir.exists():
+        states_dir.mkdir()
+    state_name = state_name + ".json"
+    state_path = states_dir / state_name
+    state = main_menu()
+    if state.targets:
+        return state, state_path
+    msg = "Empty target in template not allowed."
+    raise ValueError(msg)

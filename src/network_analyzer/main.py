@@ -5,11 +5,13 @@ from pathlib import Path
 
 from pyfiglet import figlet_format
 
+from network_analyzer.acquisition.acquire import acquire as ac
+from network_analyzer.analysis.ai_analyze_report import reporte_analisis_ia
 from network_analyzer.utils.config import load_config
 from network_analyzer.utils.menu import get_state
 from network_analyzer.utils.messages import MessagesConfig
+from network_analyzer.utils.scan_models import ToJson
 from network_analyzer.utils.setup_logging import setup_logging
-from network_analyzer.utils.max_attempts import validate_state_name, MaxAttemptError
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -25,46 +27,47 @@ def main():
 
     messages_path = config.paths.messages
 
-    print(figlet_format("network-analyzer"))
+    print(figlet_format("network-analyzer", width=200))
 
     # Initialize menu messages
     MessagesConfig.initialize(messages_path, "es")
-    messages = MessagesConfig.get()
-    try:
-        state_name = validate_state_name("Ingrese el estado a crear o cargar: ")
-        states_dir = config.paths.states
-        state = get_state(states_dir, state_name)
-        print(state.model_dump_json(indent=2))
-    except MaxAttemptError:
-        print(messages.max_attempts_exit)
+    # messages = MessagesConfig.get()
 
-    # Add environment checks
-
-    # Create template if not available and load it.
-    # state_dir =
-    # template_dir = config["paths"]["data"] / "templates"
-    # try:
-    #     template = get_template(template_dir=template_dir)
-    #     logger.info("Template found at %s", template_dir)
-    # except FileNotFoundError:
-    #     logger.info("Creating new template")
-    #     print("No se ha encontrado configuración.")
-    #     create_template(template_dir=template_dir)
-    #     template = get_template(template_dir=template_dir)
-    # except ValidationError:
-    #     logger.warning("Failed to validate template %s", template_dir)
-    #     logger.warning("Attempting to create valid template")
-    #     create_template(template_dir=template_dir)
+    # Create state and save it to JSON file.
+    states_dir = config.paths.data / "states"
+    state, state_path = get_state(states_dir=states_dir)
+    targets = state.targets
 
     # Scan the network and acquire the results
-    # targets = "192.168.100.0/24"
-    # scan = acquire(targets=targets)
+    if not targets:
+        msg = "Template withouth Target"
+        raise ValueError(msg)
 
-    # Analyze the results and identify possible actions
-    # actions = analyze(scan, template)
+    # Use nmap to scan the target.
+    scan = ac(targets=targets)
 
-    # Execute containmaint actions
-    # contain(actions)
+    if not scan:
+        print("El escaneo no econtró detalles")
+        return
+
+    to_json = ToJson(state=state, scan=scan)
+
+    with state_path.open("w", encoding="UTF-8") as f:
+        f.write(to_json.model_dump_json(indent=2))
+
+    ai_result = reporte_analisis_ia(
+        archivo_json=state_path,
+        archivo_api_key=config.paths.api_key,
+        archivo_prompt=config.paths.prompt_ai,
+    )
+
+    if not ai_result:
+        print("No se ha podido contactar la IA")
+        return
+
+    result_md = Path("/home/sar/Repos/network-analyzer/outputs/results.md")
+    with result_md.open("w", encoding="UTF-8") as f:
+        f.write(ai_result)
 
 
 if __name__ == "__main__":

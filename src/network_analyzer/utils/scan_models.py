@@ -1,10 +1,40 @@
 """Pydantic models for use over the project."""
 
-from ipaddress import IPv4Address, IPv4Network, IPv6Address, IPv6Network
+from ipaddress import (
+    IPv4Address,
+    IPv4Network,
+    IPv6Address,
+    IPv6Network,
+    AddressValueError,
+    NetmaskValueError,
+)
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_serializer
 
-type Targets = IPv4Address | IPv6Address | IPv4Network | IPv6Network
+
+class Targets(BaseModel):
+    value: IPv4Address | IPv6Address | IPv4Network | IPv6Network | None = None
+
+    @property
+    def parsed(self) -> IPv4Address | IPv6Address | IPv4Network | IPv6Network | None:
+        """Returns the parsed IP object directly"""
+        return self.value
+
+    def from_string(
+        self, value: str | int
+    ) -> IPv4Address | IPv6Address | IPv4Network | IPv6Network:
+        """
+        Parse and return the IP object directly.
+        Returns:
+            The parsed IPv4Address, IPv6Address, IPv4Network, or IPv6Network object
+        """
+        for parser in [IPv4Address, IPv6Address, IPv4Network, IPv6Network]:
+            try:
+                self.value = parser(value)
+                return self.value
+            except (AddressValueError, NetmaskValueError, ValueError):
+                continue
+        raise ValueError(f"'{value}' is not a valid IPv4/IPv6 address or network")
 
 
 class ServiceInfo(BaseModel):
@@ -33,7 +63,6 @@ class OSMatchInfo(BaseModel):
     type: str | None
     vendor: str | None
     family: str | None
-    # cpe: list[str] | None = None
 
 
 class OSMatch(BaseModel):
@@ -123,3 +152,15 @@ class NetworkState(BaseModel):
             ports=ports or None,
             services=services or None,
         )
+
+    @field_serializer("targets")
+    def serialize_targets(self, targets: Targets | None):
+        """Serialize Targets by unwrapping the value field."""
+        if targets is None:
+            return None
+        return targets.value
+
+
+class ToJson(BaseModel):
+    state: NetworkState
+    scan: ScanResults

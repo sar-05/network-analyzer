@@ -24,15 +24,15 @@ class Messages(BaseModel):
     selection_prompt: str
     max_attempts: str
     max_attempts_exit: str
-    network_ip_required: str
-    network_ip_configured: str
-    os_families: str
-    services: str
-    ports: str
-    devices_num: str
-    break_option_cancel: str
     break_option_scan: str
     cancel_operation: str
+    main_menu_opts: list[str]
+    ip_opts: list[str]
+    os_opts: list[str]
+    services_opts: list[str]
+    ports_opts: list[int]
+    num_dev_opts: list[str]
+    unknown_menu_opt: str
 
 
 class MessagesConfig:

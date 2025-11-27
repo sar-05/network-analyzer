@@ -21,7 +21,8 @@ logger = logging.getLogger(__name__)
 def acquire(targets: Targets) -> ScanResults | None:
     """Parse nmap scan results of a network into a JSON serializable object."""
     scanner = NmapScanner()
-    r = scanner.scan(targets=str(targets), arguments="--privileged -A --osscan-guess")
+    t = targets.value
+    r = scanner.scan(targets=str(t), arguments="--privileged -A --osscan-guess")
     hosts = ScanResults(targets=targets)
     for host in r:
         # Parse host_info

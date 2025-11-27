@@ -14,6 +14,9 @@ class PathsConfig(BaseModel):
     outputs: Path
     logs: Path
     messages: Path
+    prompts: Path
+    prompt_ai: Path
+    api_key: Path
     project_root: Path | None = None
 
     @classmethod
@@ -21,7 +24,17 @@ class PathsConfig(BaseModel):
         """Establece la raíz del proyecto para resolver rutas relativas."""
         cls.project_root = root
 
-    @field_validator("data", "states", "outputs", "logs", "messages", mode="before")
+    @field_validator(
+        "data",
+        "states",
+        "outputs",
+        "logs",
+        "messages",
+        "prompts",
+        "prompt_ai",
+        "api_key",
+        mode="before",
+    )
     @classmethod
     def resolve_path(cls, v: str) -> Path:
         if cls.project_root is None:
@@ -39,7 +52,7 @@ class PathsConfig(BaseModel):
 
     def initialize_directories(self) -> None:
         """Create required directories if missing."""
-        for field_name in ["data", "states", "outputs", "logs", "messages"]:
+        for field_name in ["data", "states", "outputs", "logs", "messages", "prompts"]:
             path = getattr(self, field_name)
 
             if not path.exists():
