@@ -8,7 +8,6 @@ authors = [
 ]
 requires-python = ">=3.13"
 dependencies = [
-	"click>=8.3.0",
 	"nmapthon2>=0.1.5",
 	"openai>=2.8.1",
 	"pydantic>=2.12.4",
@@ -16,8 +15,6 @@ dependencies = [
 	"python-json-logger>=4.0.0",
 	"pyyaml>=6.0.3",
 ]
-scripts = { network-analyzer = "main:main" }
-
 
 [build-system]
 requires = ["uv_build>=0.9.5,<0.10.0"]

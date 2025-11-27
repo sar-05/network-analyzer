@@ -1,14 +1,24 @@
 # Network Analyzer
 
-## Herramienta de análisis de red para detección de anomalías y ejecución de acciones de contención automatizada.
+Herramienta de análisis de red para detección de anomalías y ejecución de
+acciones de contención automatizada.
 
+Este repositorio contiene el desarrollo de un sistema modular de ciberseguridad
+dividido en **tres herramientas cooperativas**, cuyo objetivo es **mapear una
+red**, **detectar actividad sospechosa en los puertos** y **ejecutar acciones
+de contención de forma controlada** dentro de un sistema operativo Linux.  
 
-Este repositorio contiene el desarrollo de un sistema modular de ciberseguridad dividido en **tres herramientas cooperativas**, cuyo objetivo es **mapear una red**, **detectar actividad sospechosa en los puertos** y **ejecutar acciones de contención de forma controlada** dentro de un sistema operativo Linux.  
-El proyecto incluye un **menú interactivo**, un **flujo técnico documentado** y una **integración de IA** para generar reportes explicativos, resúmenes inteligentes y sugerencias de contención.
+El proyecto incluye un **menú interactivo**, un **flujo técnico documentado** y
+una **integración de IA** para generar reportes explicativos, resúmenes
+inteligentes y sugerencias de contención.
+
 ---
 
-## 📌 Objetivo General  
-El propósito principal del proyecto es analizar el entorno de red, generar una radiografía completa del estado actual, detectar comportamientos fuera de lo esperado y permitir acciones automatizadas de seguridad.
+## 📌 Objetivo General
+
+El propósito principal del proyecto es analizar el entorno de red, generar una
+radiografía completa del estado actual, detectar comportamientos fuera de lo
+esperado y permitir acciones automatizadas de seguridad.
 
 El sistema está compuesto por tres módulos interoperables:
 Módulo A — Acquisition: inventario y recolección de actividad.
@@ -22,7 +32,7 @@ Ejecución segura y controlada de acciones en el firewall del sistema.
 
 ---
 
-# 👥 Integrantes y Roles
+## 👥 Integrantes y Roles
 
 | Integrante                        | Rol y Contribuciones                                                                                                                                                                   |
 | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -32,7 +42,7 @@ Ejecución segura y controlada de acciones en el firewall del sistema.
 
 ---
 
-# 🧩 Estado Final del Proyecto
+## 🧩 Estado Final del Proyecto
 
 ### ✔ Módulo A — Acquisition
 
@@ -57,22 +67,26 @@ Ejecución segura y controlada de acciones en el firewall del sistema.
 ### ## 🤖 Integración de Inteligencia Artificial
 
 ### Propósito del uso de IA
+
 La IA se utiliza para:
 
-- Generar reportes explicativos de hallazgos  
-- Identificar vulnerabilidades relevantes  
-- Informar al usuario sobre acciones tomadas y recomendaciones futuras  
+* Generar reportes explicativos de hallazgos  
+* Identificar vulnerabilidades relevantes  
+* Informar al usuario sobre acciones tomadas y recomendaciones futuras  
 
 ### Punto de integración en el flujo
-- Después del análisis (Módulo B)  
-- Después de la respuesta (Módulo C)
+
+* Después del análisis (Módulo B)  
+* Después de la respuesta (Módulo C)
 
 ### Modelo seleccionado
-- **GPT-4.1**
+
+* **GPT-4.1**
 
 ### Archivos relacionados
-- `/docs/ai_plan.md`
-- `/prompts/prompt_v1.json`
+
+* `/docs/ai_plan.md`
+* `/prompts/prompt_v1.json`
 
 ### Estado general
 
@@ -80,7 +94,7 @@ La IA se utiliza para:
 
 ---
 
-# 🛡️ Declaración Ética y Consideraciones de Seguridad
+## 🛡️ Declaración Ética y Consideraciones de Seguridad
 
 ### Controles implementados
 
@@ -101,7 +115,7 @@ El uso indebido del software **es responsabilidad de quien lo ejecuta**.
 
 ---
 
-# 🔗 Enlaces Internos a Entregables
+## 🔗 Enlaces Internos a Entregables
 
 * 📄 **Entregable 3 — Implementación de análisis y base para IA**
   → `/docs/entregable_3.md`
@@ -114,7 +128,7 @@ El uso indebido del software **es responsabilidad de quien lo ejecuta**.
 
 ---
 
-# 🛠️ Instalación y Ejecución
+## 🛠️ Instalación y Ejecución
 
 ### Requisitos
 
@@ -127,12 +141,12 @@ El uso indebido del software **es responsabilidad de quien lo ejecuta**.
 ```bash
 git clone https://github.com/sar-05/network-analyzer
 cd network-analyzer
-pip install -e .
+uv sync
 ```
 
 ---
 
-# 📅 Información Final
+## 📅 Información Final
 
 **Última actualización:** 26 Noviembre 2025
 **Estado del proyecto:** ✔ Proyecto Completado
