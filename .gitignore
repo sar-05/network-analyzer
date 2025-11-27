@@ -8,3 +8,9 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Current out directory
+
+outputs/
+data/
+api_key.txt

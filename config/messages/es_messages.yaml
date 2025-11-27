@@ -1,0 +1,22 @@
+messages:
+  menu_title: "=== Estado Esperado de Red ==="
+  network_ip: "Ingrese la IP de la red: "
+  select_os: "Seleccione los sistemas operativos permitidos (e.g 1 2 5): "
+  select_services: "Seleccione los servicios permitidos (e.g 1 2 5): "
+  select_ports: "Seleccione los puertos permitidos (e.g 1 2 5): "
+  expected_devices: "Ingrese la cantidad esperada de dispositivos: "
+  configured: "(Configurado)"
+  cancel: "Escanear"
+  scan: "Escanear {targets}"
+  selection_prompt: "Su selección: "
+  max_attempts: "Máximo número de intentos excedidos."
+  max_attempts_exit: "Saliendo debido a número de intentos excedido."
+  break_option_scan: "6) Escanear {targets}"
+  cancel_operation: "Cancelando operación."
+  main_menu_opts: ["Ip de Red", "Familia de OS", "Servicios", "Puertos", "Número de Dispositivos", "Escanear"]
+  ip_opts: ["CUSTOM"]
+  os_opts: ["Linux", "Windows", "MacOs", "Android", "IOS", "CUSTOM"]
+  services_opts: ["FTP", "SSH", "Telet", "SMTP", "DNS", "HTTP", "HTTPS", "CUSTOM"]
+  ports_opts: [21, 22, 23, 25, 53, 80, 443]
+  num_dev_opts: ["CUSTOM"]
+  unknown_menu_opt: "Selección desconocida del menu, saliendo"

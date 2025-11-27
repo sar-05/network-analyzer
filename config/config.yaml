@@ -1,0 +1,9 @@
+paths:
+  data: "data/"
+  states: "data/states"
+  outputs: "outputs/"
+  logs: "outputs/logs"
+  messages: "config/messages/"
+  prompts: "prompts"
+  prompt_ai: "prompts/prompt_v1.txt"
+  api_key: "prompts/api_key.txt"
